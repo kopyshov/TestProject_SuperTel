@@ -3,7 +3,9 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class SequenceConverter {
-    public Integer[] convertToSequence(String[] indexes) {
+    public Integer[] convertToIntSequence(String[] indexes) {
+        if(indexes == null) throw new NullPointerException("Массив строк не может быть пустым");
+
         HashSet<Integer> sequence = new HashSet<>();
         List<Integer[]> intSequences = mapStringsToSequences(indexes);
         for (Integer[] intArray : intSequences) {
@@ -13,6 +15,8 @@ public class SequenceConverter {
     }
 
     public Integer[][] convertToGroups(String[] indexes) {
+        if(indexes == null) throw new NullPointerException("Массив строк не может быть пустым");
+
         List<Integer[]> intSequences = mapStringsToSequences(indexes);
         Integer[][] integers = intSequences.toArray(Integer[][]::new);
         return getAllCombinations(integers);
@@ -50,6 +54,8 @@ public class SequenceConverter {
     private List<Integer[]> mapStringsToSequences(String[] indexes) {
         List<Integer[]> sequences = new ArrayList<>();
         for (String index : indexes) {
+            if (index.isBlank()) throw new IllegalArgumentException("Строки не могут быть пустыми или содержать только пробелы");
+            if (!index.matches("^[0-9,-]+$")) throw new IllegalArgumentException("Строка должна содержать числа");
             String[] strSequence = index.split(",");
             List<Integer> intSequence = new ArrayList<>();
             for (String str : strSequence) {
