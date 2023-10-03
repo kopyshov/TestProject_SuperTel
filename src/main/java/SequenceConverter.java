@@ -14,36 +14,39 @@ public class SequenceConverter {
 
     public Integer[][] convertToGroups(String[] indexes) {
         List<Integer[]> intSequences = mapStringsToSequences(indexes);
-        List<List<Integer>> forCombinator = intSequences.stream()
-                .map(Arrays::asList)
-                .collect(Collectors.toList());
-        List<List<Integer>> combinations =  getAllCombinations(forCombinator);
-        List<Integer[]> arrayCombinations = combinations.stream()
-                .map(s -> s.toArray(Integer[]::new))
-                .collect(Collectors.toList());
-        return arrayCombinations.toArray(Integer[][]::new);
-    }
-    public static List<List<Integer>> getAllCombinations(List<List<Integer>> arrays) {
-        List<List<Integer>> combinations = new ArrayList<>();
-        getCombinations(arrays, new ArrayList<>(), 0, combinations);
-        return combinations;
+        Integer[][] integers = intSequences.toArray(Integer[][]::new);
+        return getAllCombinations(integers);
     }
 
-    private static void getCombinations(List<List<Integer>> arrays, List<Integer> currentCombination, int currentIndex, List<List<Integer>> combinations) {
-        if (currentIndex == arrays.size()) {
-            combinations.add(new ArrayList<>(currentCombination));
-            return;
+    public Integer[][] getAllCombinations(Integer[][] sequences) {
+        int countOfCombinations = 1;
+        for (int i = 0; i < sequences.length; i++) { //рассчитываем количество комбинаций
+            countOfCombinations *= sequences[i].length;
         }
+        Integer[][] groups = new Integer[countOfCombinations][1]; //массив с результатами комбинаций
+        int count = 0; //счетчик для массива
 
-        List<Integer> currentArray = arrays.get(currentIndex);
-        for (int i = 0; i < currentArray.size(); i++) {
-            currentCombination.add(currentArray.get(i));
-            getCombinations(arrays, currentCombination, currentIndex + 1, combinations);
-            currentCombination.remove(currentCombination.size() - 1);
+        int[] pointers = new int[sequences.length]; //создаем "указатели" для выборки значений
+        while (pointers[0] < sequences[0].length) { //цикл работает пока первый указатель не станет равен количеству значений в первомй последовательности
+            Integer[] combination = new Integer[sequences.length]; //новая комбинация
+            for (int i = 0; i < sequences.length; i++) {
+                combination[i] = sequences[i][pointers[i]]; //берем с каждого массива по значению согласно указателям
+            }
+            groups[count] = combination; //добавляем готовую комбинацию в массив
+            count++;
+
+            //здесь и далее увеличиваем указатели с конца пока не будет максимум
+            //затем увеличиваем указатель следуюий по порядку
+            pointers[sequences.length - 1]++;
+            for (int i = sequences.length - 1; i > 0; i--) {
+                if (pointers[i] == sequences[i].length) {
+                    pointers[i] = 0;
+                    pointers[i-1]++;
+                }
+            }
         }
+        return groups;
     }
-
-
     private List<Integer[]> mapStringsToSequences(String[] indexes) {
         List<Integer[]> sequences = new ArrayList<>();
         for (String index : indexes) {
